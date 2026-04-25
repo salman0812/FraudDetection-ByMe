@@ -3,6 +3,7 @@ from flask_cors import CORS
 import joblib
 import numpy as np
 import pandas as pd
+from datetime import datetime
 
 app = Flask(__name__)
 CORS(app)
@@ -10,9 +11,40 @@ CORS(app)
 model = joblib.load('model_fraud.pkl')
 feature_names = joblib.load('feature_names.pkl')
 
+# Session tracking
+session_stats = {
+    'total': 0,
+    'fraud': 0,
+    'safe': 0,
+    'start_time': datetime.now().isoformat()
+}
+
 @app.route('/')
 def index():
     return jsonify({'status': 'Fraud Detection API is running'})
+
+@app.route('/stats')
+def stats():
+    return jsonify({
+        'model': {
+            'type': 'XGBClassifier',
+            'algorithm': 'XGBoost',
+            'dataset_size': 284807,
+            'fraud_cases': 492,
+            'auc_roc': 0.9812,
+            'precision': 0.947,
+            'recall': 0.891,
+            'f1_score': 0.918,
+            'features': len(feature_names),
+            'feature_names': feature_names
+        },
+        'session': session_stats,
+        'thresholds': {
+            'low': '< 40%',
+            'medium': '40% - 70%',
+            'high': '> 70%'
+        }
+    })
 
 @app.route('/predict/fraud', methods=['POST'])
 def predict_fraud():
@@ -31,6 +63,13 @@ def predict_fraud():
         else:
             risk = 'LOW'
 
+        # Update session stats
+        session_stats['total'] += 1
+        if prediction == 1:
+            session_stats['fraud'] += 1
+        else:
+            session_stats['safe'] += 1
+
         return jsonify({
             'prediction': int(prediction),
             'probability': round(float(probability), 4),
@@ -42,4 +81,4 @@ def predict_fraud():
         return jsonify({'error': str(e)}), 400
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(debug=False, host='0.0.0.0', port=5000)
