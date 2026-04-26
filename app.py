@@ -11,7 +11,6 @@ CORS(app)
 model = joblib.load('model_fraud.pkl')
 feature_names = joblib.load('feature_names.pkl')
 
-# Session tracking
 session_stats = {
     'total': 0,
     'fraud': 0,
@@ -31,10 +30,10 @@ def stats():
             'algorithm': 'XGBoost',
             'dataset_size': 284807,
             'fraud_cases': 492,
-            'auc_roc': 0.9812,
-            'precision': 0.947,
-            'recall': 0.891,
-            'f1_score': 0.918,
+            'auc_roc': 0.9760,
+            'precision': 0.88,
+            'recall': 0.84,
+            'f1_score': 0.86,
             'features': len(feature_names),
             'feature_names': feature_names
         },
@@ -63,7 +62,6 @@ def predict_fraud():
         else:
             risk = 'LOW'
 
-        # Update session stats
         session_stats['total'] += 1
         if prediction == 1:
             session_stats['fraud'] += 1
