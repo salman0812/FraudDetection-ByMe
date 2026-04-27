@@ -23,22 +23,39 @@ body::before {
   content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: 0.4;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
 }
+
+/* ===== LAYOUT ===== */
 .layout { display: grid; grid-template-columns: 240px 1fr; grid-template-rows: 60px 1fr; min-height: 100vh; position: relative; z-index: 1; }
-.topbar { grid-column: 1/-1; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; border-bottom: 1px solid var(--border); background: rgba(8,12,20,0.9); backdrop-filter: blur(20px); position: sticky; top: 0; z-index: 100; }
+
+/* ===== TOPBAR ===== */
+.topbar { grid-column: 1/-1; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; border-bottom: 1px solid var(--border); background: rgba(8,12,20,0.9); backdrop-filter: blur(20px); position: sticky; top: 0; z-index: 200; }
 .logo { display: flex; align-items: center; gap: 10px; }
-.logo-icon { width: 32px; height: 32px; background: linear-gradient(135deg,#1d4ed8,#4f46e5); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 0 20px rgba(59,130,246,0.3); }
+.logo-icon { width: 32px; height: 32px; background: linear-gradient(135deg,#1d4ed8,#4f46e5); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 0 20px rgba(59,130,246,0.3); flex-shrink: 0; }
 .logo-text { font-size: 15px; font-weight: 700; letter-spacing: -0.3px; }
 .logo-sub { font-size: 10px; color: var(--text3); letter-spacing: 0.5px; text-transform: uppercase; }
-.topbar-right { display: flex; align-items: center; gap: 16px; }
+.topbar-right { display: flex; align-items: center; gap: 12px; }
 .api-pill { display: flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 999px; font-size: 11px; font-weight: 500; border: 1px solid var(--border2); }
 .api-pill.online { border-color: rgba(16,185,129,0.3); color: var(--green); background: var(--green-dim); }
 .api-pill.offline { border-color: rgba(239,68,68,0.3); color: var(--red); background: var(--red-dim); }
-.dot { width: 6px; height: 6px; border-radius: 50%; }
+.dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
 .dot.online { background: var(--green); box-shadow: 0 0 6px var(--green); animation: blink 2s infinite; }
 .dot.offline { background: var(--red); }
 @keyframes blink { 0%,100%{opacity:1}50%{opacity:0.3} }
 .topbar-time { font-size: 12px; color: var(--text3); font-variant-numeric: tabular-nums; }
-.sidebar { background: var(--surface); border-right: 1px solid var(--border); padding: 20px 12px; overflow-y: auto; display: flex; flex-direction: column; }
+
+/* Hamburger */
+.hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; background: none; border: none; }
+.hamburger span { width: 22px; height: 2px; background: var(--text2); border-radius: 2px; transition: all 0.3s; }
+.hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+.hamburger.open span:nth-child(2) { opacity: 0; }
+.hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
+/* Sidebar overlay for mobile */
+.sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 150; }
+.sidebar-overlay.show { display: block; }
+
+/* ===== SIDEBAR ===== */
+.sidebar { background: var(--surface); border-right: 1px solid var(--border); padding: 20px 12px; overflow-y: auto; display: flex; flex-direction: column; transition: transform 0.3s; }
 .sidebar-section { margin-bottom: 24px; }
 .sidebar-label { font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text3); padding: 0 8px; margin-bottom: 8px; }
 .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 8px; font-size: 13px; font-weight: 500; color: var(--text2); cursor: pointer; transition: all 0.15s; margin-bottom: 2px; border: 1px solid transparent; }
@@ -53,11 +70,15 @@ body::before {
 .btn-normal:hover { background: rgba(16,185,129,0.2); }
 .btn-fraud { background: var(--red-dim); border-color: rgba(239,68,68,0.25); color: var(--red); }
 .btn-fraud:hover { background: rgba(239,68,68,0.2); }
-.main { background: var(--bg); overflow-y: auto; }
+
+/* ===== MAIN ===== */
+.main { background: var(--bg); overflow-y: auto; min-width: 0; }
 .page { display: none; padding: 24px; }
 .page.active { display: block; }
 .page-title { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 4px; }
 .page-sub { font-size: 13px; color: var(--text3); margin-bottom: 20px; }
+
+/* ===== MODEL BAR ===== */
 .model-bar { display: grid; grid-template-columns: repeat(5,1fr); gap: 12px; margin-bottom: 20px; }
 .model-stat { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; }
 .model-stat-icon { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; font-weight: 700; }
@@ -68,6 +89,8 @@ body::before {
 .model-stat-icon.red { background: var(--red-dim); color: var(--red); }
 .model-stat-val { font-size: 16px; font-weight: 700; line-height: 1; margin-bottom: 3px; }
 .model-stat-lbl { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.8px; }
+
+/* ===== CARDS ===== */
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px; }
 .card-label { font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text3); margin-bottom: 16px; }
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
@@ -82,25 +105,14 @@ body::before {
 .v-item:hover label span.tip { display: block; }
 .v-item input { background: rgba(255,255,255,0.03); border: 1px solid var(--border); color: var(--text); border-radius: 6px; padding: 6px 8px; font-size: 12px; width: 100%; }
 .v-item input:focus { outline: none; border-color: var(--blue); }
-.btn-primary { background: linear-gradient(135deg,#2563eb,#4f46e5); color: white; border: none; border-radius: 10px; padding: 13px; font-size: 14px; font-weight: 600; cursor: pointer; width: 100%; transition: all 0.2s; position: relative; overflow: hidden; }
+.btn-primary { background: linear-gradient(135deg,#2563eb,#4f46e5); color: white; border: none; border-radius: 10px; padding: 13px; font-size: 14px; font-weight: 600; cursor: pointer; width: 100%; transition: all 0.2s; }
 .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(37,99,235,0.35); }
 .btn-primary:active { transform: translateY(0); }
 .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
-/* CSV Upload */
-.csv-upload-area {
-  border: 2px dashed rgba(59,130,246,0.3);
-  border-radius: 10px;
-  padding: 20px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.2s;
-  margin-bottom: 12px;
-  background: rgba(59,130,246,0.04);
-  position: relative;
-}
+/* ===== CSV UPLOAD ===== */
+.csv-upload-area { border: 2px dashed rgba(59,130,246,0.3); border-radius: 10px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.2s; margin-bottom: 12px; background: rgba(59,130,246,0.04); position: relative; }
 .csv-upload-area:hover { border-color: var(--blue); background: var(--blue-dim); }
-.csv-upload-area.dragover { border-color: var(--blue); background: var(--blue-dim); }
 .csv-upload-area input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
 .csv-upload-title { font-size: 13px; font-weight: 600; color: var(--blue); margin-bottom: 4px; }
 .csv-upload-sub { font-size: 11px; color: var(--text3); }
@@ -115,6 +127,7 @@ body::before {
 .tab-btn { flex: 1; padding: 7px; border-radius: 6px; font-size: 12px; font-weight: 600; border: none; cursor: pointer; transition: all 0.15s; background: transparent; color: var(--text3); }
 .tab-btn.active { background: var(--blue-dim); color: var(--blue); }
 
+/* ===== METRICS ===== */
 .metrics-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 20px; }
 .metric { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px; position: relative; overflow: hidden; transition: all 0.3s; }
 .metric::before { content:''; position:absolute; top:0;left:0;right:0; height:2px; border-radius:14px 14px 0 0; }
@@ -149,8 +162,8 @@ tr:last-child td { border-bottom: none; }
 tbody tr { transition: background 0.15s; }
 tbody tr:hover td { background: rgba(255,255,255,0.02); color: var(--text); }
 .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin-bottom: 20px; }
-.toast-wrap { position: fixed; bottom: 24px; right: 24px; z-index: 999; display: flex; flex-direction: column; gap: 8px; }
-.toast { padding: 12px 18px; border-radius: 10px; font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 10px; animation: slideIn 0.3s ease; border: 1px solid; min-width: 240px; }
+.toast-wrap { position: fixed; bottom: 24px; right: 24px; z-index: 999; display: flex; flex-direction: column; gap: 8px; max-width: calc(100vw - 48px); }
+.toast { padding: 12px 18px; border-radius: 10px; font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 10px; animation: slideIn 0.3s ease; border: 1px solid; min-width: 200px; }
 .toast.error { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.3); color: #fca5a5; }
 .toast.success { background: rgba(16,185,129,0.15); border-color: rgba(16,185,129,0.3); color: #6ee7b7; }
 .toast.info { background: rgba(59,130,246,0.15); border-color: rgba(59,130,246,0.3); color: #93c5fd; }
@@ -159,7 +172,7 @@ tbody tr:hover td { background: rgba(255,255,255,0.02); color: var(--text); }
 .btn-export:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-dim); }
 .spinner { width: 32px; height: 32px; border: 2px solid rgba(59,130,246,0.2); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.6s linear infinite; margin: 0 auto; }
 @keyframes spin { to{transform:rotate(360deg)} }
-.empty { text-align: center; padding: 60px 20px; }
+.empty { text-align: center; padding: 40px 20px; }
 .empty-icon { font-size: 36px; opacity: 0.15; margin-bottom: 16px; }
 .empty-title { font-size: 14px; font-weight: 500; color: var(--text3); margin-bottom: 6px; }
 .empty-sub { font-size: 12px; color: var(--text3); opacity: 0.6; }
@@ -172,16 +185,74 @@ tbody tr:hover td { background: rgba(255,255,255,0.02); color: var(--text); }
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 2px; }
+
+/* ===== RESPONSIVE MOBILE ===== */
+@media (max-width: 768px) {
+  .layout { grid-template-columns: 1fr; grid-template-rows: 60px 1fr; }
+
+  .hamburger { display: flex; }
+  .topbar-time { display: none; }
+
+  .sidebar {
+    position: fixed;
+    top: 60px; left: 0; bottom: 0;
+    width: 260px;
+    z-index: 160;
+    transform: translateX(-100%);
+  }
+  .sidebar.open { transform: translateX(0); }
+
+  .main { grid-column: 1; }
+  .page { padding: 16px; }
+
+  .model-bar { grid-template-columns: repeat(2,1fr); gap: 8px; }
+  .model-bar .model-stat:last-child { grid-column: 1/-1; }
+
+  /* Dashboard form jadi single column */
+  .dashboard-grid { grid-template-columns: 1fr !important; }
+
+  .metrics-grid { grid-template-columns: 1fr; gap: 12px; }
+  .metric[style*="display:flex"] { flex-direction: row; }
+
+  .form-grid { grid-template-columns: 1fr 1fr; }
+  .v-grid { grid-template-columns: repeat(3,1fr); max-height: 150px; }
+
+  .analytics-grid { grid-template-columns: 1fr; }
+  .stat-row { grid-template-columns: repeat(2,1fr); }
+
+  /* Table scroll horizontal */
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  td, th { padding: 8px 10px; font-size: 11px; }
+
+  .chart-card canvas { max-height: 180px; }
+
+  .toast-wrap { bottom: 16px; right: 16px; left: 16px; }
+  .toast { min-width: unset; width: 100%; }
+
+  .page-title { font-size: 17px; }
+  .model-stat-val { font-size: 14px; }
+}
+
+@media (max-width: 400px) {
+  .model-bar { grid-template-columns: 1fr 1fr; }
+  .v-grid { grid-template-columns: repeat(2,1fr); }
+  .stat-row { grid-template-columns: repeat(2,1fr); }
+}
 </style>
 </head>
 <body>
 <div class="layout">
   <header class="topbar">
-    <div class="logo">
-      <div class="logo-icon">S</div>
-      <div>
-        <div class="logo-text">FraudShield</div>
-        <div class="logo-sub">AI Fraud Detection System</div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <button class="hamburger" id="hamburger" onclick="toggleSidebar()">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="logo">
+        <div class="logo-icon">S</div>
+        <div>
+          <div class="logo-text">FraudShield</div>
+          <div class="logo-sub">AI Fraud Detection System</div>
+        </div>
       </div>
     </div>
     <div class="topbar-right">
@@ -193,7 +264,9 @@ tbody tr:hover td { background: rgba(255,255,255,0.02); color: var(--text); }
     </div>
   </header>
 
-  <aside class="sidebar">
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+  <aside class="sidebar" id="sidebar">
     <div class="sidebar-section">
       <div class="sidebar-label">Menu</div>
       <div class="nav-item active" onclick="navTo('dashboard', this)"><span class="nav-icon">▣</span> Dashboard</div>
@@ -203,24 +276,15 @@ tbody tr:hover td { background: rgba(255,255,255,0.02); color: var(--text); }
     </div>
     <div class="sidebar-section">
       <div class="sidebar-label">Session Stats</div>
-      <div class="stat-mini">
-        <div class="stat-mini-label">Total Analyzed</div>
-        <div class="stat-mini-val" id="s-total" style="color:var(--blue)">0</div>
-      </div>
-      <div class="stat-mini">
-        <div class="stat-mini-label">Fraud Detected</div>
-        <div class="stat-mini-val" id="s-fraud" style="color:var(--red)">0</div>
-      </div>
-      <div class="stat-mini">
-        <div class="stat-mini-label">Safe Transactions</div>
-        <div class="stat-mini-val" id="s-safe" style="color:var(--green)">0</div>
-      </div>
+      <div class="stat-mini"><div class="stat-mini-label">Total Analyzed</div><div class="stat-mini-val" id="s-total" style="color:var(--blue)">0</div></div>
+      <div class="stat-mini"><div class="stat-mini-label">Fraud Detected</div><div class="stat-mini-val" id="s-fraud" style="color:var(--red)">0</div></div>
+      <div class="stat-mini"><div class="stat-mini-label">Safe Transactions</div><div class="stat-mini-val" id="s-safe" style="color:var(--green)">0</div></div>
     </div>
     <div class="sidebar-section">
       <div class="sidebar-label">Quick Test</div>
       <div style="display:flex;flex-direction:column;gap:8px;">
-        <button class="btn-sample btn-normal" onclick="loadSample('normal')">► Normal Transaction</button>
-        <button class="btn-sample btn-fraud" onclick="loadSample('fraud')">► Suspicious Transaction</button>
+        <button class="btn-sample btn-normal" onclick="loadSample('normal');closeSidebar()">► Normal Transaction</button>
+        <button class="btn-sample btn-fraud" onclick="loadSample('fraud');closeSidebar()">► Suspicious Transaction</button>
       </div>
     </div>
     <div style="margin-top:auto;padding-top:16px;border-top:1px solid var(--border);font-size:10px;color:var(--text3);line-height:1.8;">
@@ -231,51 +295,33 @@ tbody tr:hover td { background: rgba(255,255,255,0.02); color: var(--text); }
   <main class="main">
     <!-- DASHBOARD -->
     <div class="page active" id="page-dashboard">
-      <div style="padding:24px 24px 0;">
-        <div class="page-title">Transaction Analysis</div>
-        <div class="page-sub">Real-time fraud detection powered by XGBoost — trained on 284.807 transaksi</div>
-      </div>
-      <div style="padding:0 24px 20px;">
-        <div class="model-bar">
-          <div class="model-stat"><div class="model-stat-icon blue">XG</div><div><div class="model-stat-val" style="color:var(--blue)">XGBoost</div><div class="model-stat-lbl">Algorithm</div></div></div>
-          <div class="model-stat"><div class="model-stat-icon green">AU</div><div><div class="model-stat-val" style="color:var(--green)" id="ms-auc">98.12%</div><div class="model-stat-lbl">AUC-ROC</div></div></div>
-          <div class="model-stat"><div class="model-stat-icon purple">PR</div><div><div class="model-stat-val" style="color:var(--purple)" id="ms-prec">94.7%</div><div class="model-stat-lbl">Precision</div></div></div>
-          <div class="model-stat"><div class="model-stat-icon yellow">RC</div><div><div class="model-stat-val" style="color:var(--yellow)" id="ms-recall">89.1%</div><div class="model-stat-lbl">Recall</div></div></div>
-          <div class="model-stat"><div class="model-stat-icon red">F1</div><div><div class="model-stat-val" style="color:var(--red)" id="ms-f1">91.8%</div><div class="model-stat-lbl">F1-Score</div></div></div>
-        </div>
+      <div class="page-title">Transaction Analysis</div>
+      <div class="page-sub">Real-time fraud detection powered by XGBoost — trained on 284.807 transaksi</div>
+
+      <div class="model-bar">
+        <div class="model-stat"><div class="model-stat-icon blue">XG</div><div><div class="model-stat-val" style="color:var(--blue)">XGBoost</div><div class="model-stat-lbl">Algorithm</div></div></div>
+        <div class="model-stat"><div class="model-stat-icon green">AU</div><div><div class="model-stat-val" style="color:var(--green)" id="ms-auc">97.60%</div><div class="model-stat-lbl">AUC-ROC</div></div></div>
+        <div class="model-stat"><div class="model-stat-icon purple">PR</div><div><div class="model-stat-val" style="color:var(--purple)" id="ms-prec">88.0%</div><div class="model-stat-lbl">Precision</div></div></div>
+        <div class="model-stat"><div class="model-stat-icon yellow">RC</div><div><div class="model-stat-val" style="color:var(--yellow)" id="ms-recall">84.0%</div><div class="model-stat-lbl">Recall</div></div></div>
+        <div class="model-stat"><div class="model-stat-icon red">F1</div><div><div class="model-stat-val" style="color:var(--red)" id="ms-f1">86.0%</div><div class="model-stat-lbl">F1-Score</div></div></div>
       </div>
 
-      <div style="padding:0 24px 24px;display:grid;grid-template-columns:300px 1fr;gap:20px;align-items:start;">
-        <!-- Form Panel -->
+      <div class="dashboard-grid" style="display:grid;grid-template-columns:300px 1fr;gap:20px;align-items:start;">
         <div class="card">
-          <!-- Tab switch -->
           <div class="tab-switch">
             <button class="tab-btn active" id="tab-manual" onclick="switchTab('manual')">Manual Input</button>
             <button class="tab-btn" id="tab-csv" onclick="switchTab('csv')">Upload CSV</button>
           </div>
-
-          <!-- MANUAL TAB -->
           <div id="panel-manual">
             <div class="card-label">Input Transaksi</div>
             <div class="form-grid">
-              <div class="form-group">
-                <label class="form-label">Waktu (detik)</label>
-                <input type="number" id="inp-time" class="form-input" value="0" step="any">
-              </div>
-              <div class="form-group">
-                <label class="form-label">Jumlah (Rp)</label>
-                <input type="number" id="inp-amount" class="form-input" value="150000" step="any">
-              </div>
+              <div class="form-group"><label class="form-label">Waktu (detik)</label><input type="number" id="inp-time" class="form-input" value="0" step="any"></div>
+              <div class="form-group"><label class="form-label">Jumlah (Rp)</label><input type="number" id="inp-amount" class="form-input" value="150000" step="any"></div>
             </div>
-            <div class="card-label" style="margin-bottom:8px;">
-              Fitur PCA (V1–V28)
-              <span style="font-size:10px;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0;margin-left:6px;">hover untuk keterangan</span>
-            </div>
+            <div class="card-label" style="margin-bottom:8px;">Fitur PCA (V1–V28) <span style="font-size:10px;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0;margin-left:4px;">hover untuk keterangan</span></div>
             <div class="v-grid" id="v-inputs"></div>
             <button class="btn-primary" onclick="predict()" id="btn-analyze">Analisis Transaksi</button>
           </div>
-
-          <!-- CSV TAB -->
           <div id="panel-csv" style="display:none;">
             <div class="card-label">Upload File CSV</div>
             <div class="csv-upload-area" id="csv-drop-area">
@@ -284,24 +330,15 @@ tbody tr:hover td { background: rgba(255,255,255,0.02); color: var(--text); }
               <div class="csv-upload-sub" style="margin-top:4px;">Format: Time, V1-V28, Amount</div>
               <div id="csv-filename" style="margin-top:8px;font-size:12px;color:var(--blue);display:none;"></div>
             </div>
-
             <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:11px;color:var(--text3);line-height:1.7;">
               <div style="color:var(--text2);font-weight:600;margin-bottom:4px;">Format CSV yang dibutuhkan:</div>
-              <code style="color:var(--blue);font-size:10px;">Time,V1,V2,...,V28,Amount</code><br>
-              Setiap baris = 1 transaksi yang akan dianalisis
+              <code style="color:var(--blue);font-size:10px;">Time,V1,V2,...,V28,Amount</code><br>Setiap baris = 1 transaksi
             </div>
-
-            <button class="btn-csv" onclick="processCSV()" id="btn-csv-analyze" disabled>
-              Analisis Semua Transaksi
-            </button>
-
+            <button class="btn-csv" onclick="processCSV()" id="btn-csv-analyze" disabled>Analisis Semua Transaksi</button>
             <div class="csv-progress" id="csv-progress">
-              <div class="csv-progress-bar-wrap">
-                <div class="csv-progress-bar" id="csv-progress-bar"></div>
-              </div>
+              <div class="csv-progress-bar-wrap"><div class="csv-progress-bar" id="csv-progress-bar"></div></div>
               <div class="csv-progress-text" id="csv-progress-text">0 / 0 transaksi diproses</div>
             </div>
-
             <div id="csv-summary" style="display:none;margin-top:12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;">
               <div style="font-size:11px;font-weight:600;color:var(--text2);margin-bottom:8px;">Hasil Batch Analysis:</div>
               <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;">
@@ -313,7 +350,6 @@ tbody tr:hover td { background: rgba(255,255,255,0.02); color: var(--text); }
           </div>
         </div>
 
-        <!-- Results Panel -->
         <div>
           <div id="loading" class="card" style="display:none;text-align:center;padding:48px;">
             <div class="spinner" style="margin-bottom:16px;"></div>
@@ -323,8 +359,8 @@ tbody tr:hover td { background: rgba(255,255,255,0.02); color: var(--text); }
             <div class="empty-icon">[ ]</div>
             <div class="empty-title">Belum ada analisis</div>
             <div class="empty-sub">Input data transaksi atau upload CSV, lalu klik Analisis</div>
-            <div style="margin-top:20px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
-              <span style="font-size:11px;color:var(--green);background:var(--green-dim);padding:4px 10px;border-radius:6px;border:1px solid rgba(16,185,129,0.25);">AUC 98.12%</span>
+            <div style="margin-top:16px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+              <span style="font-size:11px;color:var(--green);background:var(--green-dim);padding:4px 10px;border-radius:6px;border:1px solid rgba(16,185,129,0.25);">AUC 97.60%</span>
               <span style="font-size:11px;color:var(--text3);background:var(--surface2);padding:4px 10px;border-radius:6px;border:1px solid var(--border);">284K Transaksi</span>
               <span style="font-size:11px;color:var(--purple);background:var(--purple-dim);padding:4px 10px;border-radius:6px;border:1px solid rgba(139,92,246,0.25);">XGBoost</span>
             </div>
@@ -332,17 +368,10 @@ tbody tr:hover td { background: rgba(255,255,255,0.02); color: var(--text); }
           <div id="results" style="display:none;">
             <div id="alert-box" class="alert-fraud" style="display:none;">
               <div style="font-size:16px;flex-shrink:0;margin-top:1px;">!</div>
-              <div>
-                <div class="alert-title">Pola Fraud Terdeteksi</div>
-                <div class="alert-desc" id="alert-desc">Transaksi ini menunjukkan pola mencurigakan. Verifikasi manual segera diperlukan.</div>
-              </div>
+              <div><div class="alert-title">Pola Fraud Terdeteksi</div><div class="alert-desc" id="alert-desc">Transaksi ini menunjukkan pola mencurigakan.</div></div>
             </div>
             <div class="metrics-grid">
-              <div class="metric blue" id="m-risk">
-                <div class="metric-label">Tingkat Risiko</div>
-                <div class="metric-value" id="res-risk" style="color:var(--blue)">-</div>
-                <div class="metric-sub" id="res-risk-sub">-</div>
-              </div>
+              <div class="metric blue" id="m-risk"><div class="metric-label">Tingkat Risiko</div><div class="metric-value" id="res-risk" style="color:var(--blue)">-</div><div class="metric-sub" id="res-risk-sub">-</div></div>
               <div class="metric blue" id="m-prob" style="display:flex;align-items:center;gap:16px;">
                 <div class="ring-container">
                   <svg class="ring" width="80" height="80" viewBox="0 0 80 80">
@@ -351,16 +380,9 @@ tbody tr:hover td { background: rgba(255,255,255,0.02); color: var(--text); }
                   </svg>
                   <div class="ring-text"><div class="ring-pct" id="ring-pct" style="color:var(--blue)">0%</div></div>
                 </div>
-                <div>
-                  <div class="metric-label">Probabilitas Fraud</div>
-                  <div style="font-size:11px;color:var(--text3);" id="prob-desc">-</div>
-                </div>
+                <div><div class="metric-label">Probabilitas Fraud</div><div style="font-size:11px;color:var(--text3);" id="prob-desc">-</div></div>
               </div>
-              <div class="metric blue" id="m-status">
-                <div class="metric-label">Keputusan</div>
-                <div class="metric-value" id="res-status" style="font-size:22px;">-</div>
-                <div class="metric-sub" id="res-time">-</div>
-              </div>
+              <div class="metric blue" id="m-status"><div class="metric-label">Keputusan</div><div class="metric-value" id="res-status" style="font-size:22px;">-</div><div class="metric-sub" id="res-time">-</div></div>
             </div>
             <div class="chart-card">
               <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
@@ -376,7 +398,7 @@ tbody tr:hover td { background: rgba(255,255,255,0.02); color: var(--text); }
               </div>
               <div class="table-wrap">
                 <table>
-                  <thead><tr><th>#</th><th>Jumlah</th><th>Probabilitas</th><th>Risiko</th><th>Keputusan</th><th>Waktu</th></tr></thead>
+                  <thead><tr><th>#</th><th>Jumlah</th><th>Prob</th><th>Risiko</th><th>Keputusan</th><th>Waktu</th></tr></thead>
                   <tbody id="history-table"></tbody>
                 </table>
               </div>
@@ -388,86 +410,80 @@ tbody tr:hover td { background: rgba(255,255,255,0.02); color: var(--text); }
 
     <!-- ANALYTICS -->
     <div class="page" id="page-analytics">
-      <div style="padding:24px;">
-        <div class="page-title">Analytics <span class="coming-soon">LIVE</span></div>
-        <div class="page-sub">Statistik dan distribusi hasil analisis sesi ini</div>
-        <div class="stat-row">
-          <div class="stat-card"><div class="stat-card-val" style="color:var(--blue)" id="an-total">0</div><div class="stat-card-lbl">Total Dianalisis</div></div>
-          <div class="stat-card"><div class="stat-card-val" style="color:var(--red)" id="an-fraud">0</div><div class="stat-card-lbl">Fraud Detected</div></div>
-          <div class="stat-card"><div class="stat-card-val" style="color:var(--green)" id="an-safe">0</div><div class="stat-card-lbl">Transaksi Aman</div></div>
-          <div class="stat-card"><div class="stat-card-val" style="color:var(--yellow)" id="an-rate">0%</div><div class="stat-card-lbl">Fraud Rate</div></div>
-        </div>
-        <div class="analytics-grid">
-          <div class="card"><div class="card-label">Distribusi Risiko</div><canvas id="riskChart" height="200"></canvas></div>
-          <div class="card"><div class="card-label">Rata-rata Probabilitas per Risiko</div><canvas id="avgChart" height="200"></canvas></div>
-        </div>
-        <div class="card">
-          <div class="card-label">Ringkasan Model</div>
-          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
-            <div><div style="font-size:11px;color:var(--text3);margin-bottom:6px;">Algorithm</div><div style="font-size:14px;font-weight:600;color:var(--blue)">XGBoost Classifier</div></div>
-            <div><div style="font-size:11px;color:var(--text3);margin-bottom:6px;">Dataset Size</div><div style="font-size:14px;font-weight:600;">284.807 transaksi</div></div>
-            <div><div style="font-size:11px;color:var(--text3);margin-bottom:6px;">Kasus Fraud</div><div style="font-size:14px;font-weight:600;color:var(--red)">492 (0.17%)</div></div>
-            <div><div style="font-size:11px;color:var(--text3);margin-bottom:6px;">AUC-ROC</div><div style="font-size:14px;font-weight:600;color:var(--green)">0.9812</div></div>
-            <div><div style="font-size:11px;color:var(--text3);margin-bottom:6px;">Precision</div><div style="font-size:14px;font-weight:600;color:var(--purple)">94.7%</div></div>
-            <div><div style="font-size:11px;color:var(--text3);margin-bottom:6px;">F1-Score</div><div style="font-size:14px;font-weight:600;color:var(--yellow)">91.8%</div></div>
-          </div>
+      <div class="page-title">Analytics <span class="coming-soon">LIVE</span></div>
+      <div class="page-sub">Statistik dan distribusi hasil analisis sesi ini</div>
+      <div class="stat-row">
+        <div class="stat-card"><div class="stat-card-val" style="color:var(--blue)" id="an-total">0</div><div class="stat-card-lbl">Total</div></div>
+        <div class="stat-card"><div class="stat-card-val" style="color:var(--red)" id="an-fraud">0</div><div class="stat-card-lbl">Fraud</div></div>
+        <div class="stat-card"><div class="stat-card-val" style="color:var(--green)" id="an-safe">0</div><div class="stat-card-lbl">Aman</div></div>
+        <div class="stat-card"><div class="stat-card-val" style="color:var(--yellow)" id="an-rate">0%</div><div class="stat-card-lbl">Fraud Rate</div></div>
+      </div>
+      <div class="analytics-grid">
+        <div class="card"><div class="card-label">Distribusi Risiko</div><canvas id="riskChart" height="200"></canvas></div>
+        <div class="card"><div class="card-label">Avg Probabilitas per Risiko</div><canvas id="avgChart" height="200"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-label">Ringkasan Model</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:16px;">
+          <div><div style="font-size:11px;color:var(--text3);margin-bottom:6px;">Algorithm</div><div style="font-size:14px;font-weight:600;color:var(--blue)">XGBoost</div></div>
+          <div><div style="font-size:11px;color:var(--text3);margin-bottom:6px;">Dataset</div><div style="font-size:14px;font-weight:600;">284.807 transaksi</div></div>
+          <div><div style="font-size:11px;color:var(--text3);margin-bottom:6px;">Kasus Fraud</div><div style="font-size:14px;font-weight:600;color:var(--red)">492 (0.17%)</div></div>
+          <div><div style="font-size:11px;color:var(--text3);margin-bottom:6px;">AUC-ROC</div><div style="font-size:14px;font-weight:600;color:var(--green)">0.9760</div></div>
+          <div><div style="font-size:11px;color:var(--text3);margin-bottom:6px;">Precision</div><div style="font-size:14px;font-weight:600;color:var(--purple)">88%</div></div>
+          <div><div style="font-size:11px;color:var(--text3);margin-bottom:6px;">F1-Score</div><div style="font-size:14px;font-weight:600;color:var(--yellow)">86%</div></div>
         </div>
       </div>
     </div>
 
     <!-- HISTORY -->
     <div class="page" id="page-history">
-      <div style="padding:24px;">
-        <div class="page-title">History <span class="coming-soon">LIVE</span></div>
-        <div class="page-sub">Semua transaksi yang telah dianalisis dalam sesi ini</div>
-        <div class="card">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-            <div class="card-label" style="margin:0;">Semua Transaksi</div>
-            <div style="display:flex;gap:8px;align-items:center;">
-              <select id="hist-filter" onchange="renderHistoryPage()" style="background:var(--surface2);border:1px solid var(--border2);color:var(--text2);border-radius:6px;padding:5px 10px;font-size:12px;">
-                <option value="all">Semua</option>
-                <option value="fraud">Fraud Only</option>
-                <option value="safe">Safe Only</option>
-              </select>
-              <button class="btn-export" onclick="exportCSV()">Export CSV</button>
-            </div>
+      <div class="page-title">History <span class="coming-soon">LIVE</span></div>
+      <div class="page-sub">Semua transaksi yang telah dianalisis dalam sesi ini</div>
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
+          <div class="card-label" style="margin:0;">Semua Transaksi</div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <select id="hist-filter" onchange="renderHistoryPage()" style="background:var(--surface2);border:1px solid var(--border2);color:var(--text2);border-radius:6px;padding:5px 10px;font-size:12px;">
+              <option value="all">Semua</option>
+              <option value="fraud">Fraud Only</option>
+              <option value="safe">Safe Only</option>
+            </select>
+            <button class="btn-export" onclick="exportCSV()">Export CSV</button>
           </div>
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>#</th><th>Jumlah</th><th>Probabilitas</th><th>Risiko</th><th>Keputusan</th><th>Waktu</th></tr></thead>
-              <tbody id="history-page-table"></tbody>
-            </table>
-          </div>
-          <div id="hist-empty" style="text-align:center;padding:40px;color:var(--text3);font-size:13px;display:none;">Belum ada data. Lakukan analisis transaksi terlebih dahulu.</div>
         </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Jumlah</th><th>Prob</th><th>Risiko</th><th>Keputusan</th><th>Waktu</th></tr></thead>
+            <tbody id="history-page-table"></tbody>
+          </table>
+        </div>
+        <div id="hist-empty" style="text-align:center;padding:40px;color:var(--text3);font-size:13px;display:none;">Belum ada data.</div>
       </div>
     </div>
 
     <!-- REPORTS -->
     <div class="page" id="page-reports">
-      <div style="padding:24px;">
-        <div class="page-title">Reports <span class="coming-soon">LIVE</span></div>
-        <div class="page-sub">Laporan ringkasan sesi deteksi fraud</div>
-        <div class="card" style="margin-bottom:16px;">
-          <div class="card-label">Laporan Sesi</div>
-          <div style="font-size:13px;color:var(--text2);line-height:2;">
-            <div style="display:grid;grid-template-columns:200px 1fr;gap:8px;">
-              <span style="color:var(--text3);">Waktu Mulai</span><span id="rpt-start">-</span>
-              <span style="color:var(--text3);">Total Dianalisis</span><span id="rpt-total" style="color:var(--blue);font-weight:600;">0</span>
-              <span style="color:var(--text3);">Fraud Terdeteksi</span><span id="rpt-fraud" style="color:var(--red);font-weight:600;">0</span>
-              <span style="color:var(--text3);">Transaksi Aman</span><span id="rpt-safe" style="color:var(--green);font-weight:600;">0</span>
-              <span style="color:var(--text3);">Fraud Rate</span><span id="rpt-rate" style="color:var(--yellow);font-weight:600;">0%</span>
-              <span style="color:var(--text3);">Rata-rata Probabilitas</span><span id="rpt-avg">0%</span>
-              <span style="color:var(--text3);">Probabilitas Tertinggi</span><span id="rpt-max" style="color:var(--red);">0%</span>
-              <span style="color:var(--text3);">Model</span><span style="color:var(--blue);">XGBoost Classifier</span>
-              <span style="color:var(--text3);">AUC-ROC</span><span style="color:var(--green);">98.12%</span>
-            </div>
+      <div class="page-title">Reports <span class="coming-soon">LIVE</span></div>
+      <div class="page-sub">Laporan ringkasan sesi deteksi fraud</div>
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-label">Laporan Sesi</div>
+        <div style="font-size:13px;color:var(--text2);line-height:2;">
+          <div style="display:grid;grid-template-columns:auto 1fr;gap:8px 16px;">
+            <span style="color:var(--text3);">Waktu Mulai</span><span id="rpt-start">-</span>
+            <span style="color:var(--text3);">Total Dianalisis</span><span id="rpt-total" style="color:var(--blue);font-weight:600;">0</span>
+            <span style="color:var(--text3);">Fraud Terdeteksi</span><span id="rpt-fraud" style="color:var(--red);font-weight:600;">0</span>
+            <span style="color:var(--text3);">Transaksi Aman</span><span id="rpt-safe" style="color:var(--green);font-weight:600;">0</span>
+            <span style="color:var(--text3);">Fraud Rate</span><span id="rpt-rate" style="color:var(--yellow);font-weight:600;">0%</span>
+            <span style="color:var(--text3);">Avg Probabilitas</span><span id="rpt-avg">0%</span>
+            <span style="color:var(--text3);">Prob Tertinggi</span><span id="rpt-max" style="color:var(--red);">0%</span>
+            <span style="color:var(--text3);">Model</span><span style="color:var(--blue);">XGBoost Classifier</span>
+            <span style="color:var(--text3);">AUC-ROC</span><span style="color:var(--green);">0.9760</span>
           </div>
         </div>
-        <div style="display:flex;gap:12px;">
-          <button class="btn-export" style="padding:10px 20px;font-size:12px;" onclick="exportCSV()">Export CSV Log</button>
-          <button class="btn-export" style="padding:10px 20px;font-size:12px;" onclick="printReport()">Print Report</button>
-        </div>
+      </div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        <button class="btn-export" style="padding:10px 20px;font-size:12px;" onclick="exportCSV()">Export CSV</button>
+        <button class="btn-export" style="padding:10px 20px;font-size:12px;" onclick="printReport()">Print Report</button>
       </div>
     </div>
   </main>
@@ -477,29 +493,38 @@ tbody tr:hover td { background: rgba(255,255,255,0.02); color: var(--text); }
 
 <script>
 const API = 'https://frauddetectionn.up.railway.app';
-let historyData = [];
-let chart, riskChart, avgChart;
+let historyData = [], chart, riskChart, avgChart;
 let totalCount = 0, fraudCount = 0, safeCount = 0;
 const sessionStart = new Date();
 let csvRows = [];
 
-const vDesc = {
-  V1:'Komponen PCA 1 — korelasi kuat dengan pola waktu transaksi',V2:'Komponen PCA 2 — berhubungan dengan jumlah transaksi berulang',V3:'Komponen PCA 3 — indikator lokasi geografis transaksi',V4:'Komponen PCA 4 — pola merchant kategori',V5:'Komponen PCA 5 — frekuensi transaksi harian',V6:'Komponen PCA 6 — deviasi dari perilaku normal pengguna',V7:'Komponen PCA 7 — kecepatan perpindahan transaksi',V8:'Komponen PCA 8 — pola waktu malam/hari',V9:'Komponen PCA 9 — anomali jumlah transaksi',V10:'Komponen PCA 10 — rasio transaksi gagal',V11:'Komponen PCA 11 — pola penarikan tunai',V12:'Komponen PCA 12 — indikator kartu baru digunakan',V13:'Komponen PCA 13 — variasi merchant berbeda',V14:'Komponen PCA 14 — sinyal terkuat fraud (bobot tinggi)',V15:'Komponen PCA 15 — pola akhir pekan vs hari kerja',V16:'Komponen PCA 16 — anomali negara transaksi',V17:'Komponen PCA 17 — sinyal fraud sekunder (bobot tinggi)',V18:'Komponen PCA 18 — pola transaksi online vs offline',V19:'Komponen PCA 19 — deviasi jumlah dari rata-rata',V20:'Komponen PCA 20 — pola transaksi beruntun',V21:'Komponen PCA 21 — indikator kloning kartu',V22:'Komponen PCA 22 — anomali chip vs magnetic stripe',V23:'Komponen PCA 23 — pola PIN salah berulang',V24:'Komponen PCA 24 — transaksi internasional',V25:'Komponen PCA 25 — pola refund mencurigakan',V26:'Komponen PCA 26 — frekuensi ganti PIN',V27:'Komponen PCA 27 — transaksi micro (jumlah sangat kecil)',V28:'Komponen PCA 28 — komponen residual PCA'
-};
+const vDesc = {V1:'PCA 1 — pola waktu transaksi',V2:'PCA 2 — transaksi berulang',V3:'PCA 3 — lokasi geografis',V4:'PCA 4 — merchant kategori',V5:'PCA 5 — frekuensi harian',V6:'PCA 6 — deviasi perilaku',V7:'PCA 7 — kecepatan transaksi',V8:'PCA 8 — pola waktu',V9:'PCA 9 — anomali jumlah',V10:'PCA 10 — rasio gagal',V11:'PCA 11 — penarikan tunai',V12:'PCA 12 — kartu baru',V13:'PCA 13 — variasi merchant',V14:'PCA 14 — sinyal fraud kuat',V15:'PCA 15 — pola akhir pekan',V16:'PCA 16 — anomali negara',V17:'PCA 17 — sinyal fraud sekunder',V18:'PCA 18 — online vs offline',V19:'PCA 19 — deviasi jumlah',V20:'PCA 20 — transaksi beruntun',V21:'PCA 21 — kloning kartu',V22:'PCA 22 — chip vs magnetic',V23:'PCA 23 — PIN salah',V24:'PCA 24 — transaksi internasional',V25:'PCA 25 — refund mencurigakan',V26:'PCA 26 — ganti PIN',V27:'PCA 27 — micro transaksi',V28:'PCA 28 — residual PCA'};
 
 setInterval(() => { document.getElementById('clock').textContent = new Date().toLocaleTimeString('id-ID'); }, 1000);
 
 const vc = document.getElementById('v-inputs');
-for (let i=1;i<=28;i++) {
-  vc.innerHTML += `<div class="v-item"><label>V${i}<span class="tip">${vDesc['V'+i]}</span></label><input type="number" id="inp-v${i}" value="0" step="any"></div>`;
+for (let i=1;i<=28;i++) vc.innerHTML += `<div class="v-item"><label>V${i}<span class="tip">${vDesc['V'+i]}</span></label><input type="number" id="inp-v${i}" value="0" step="any"></div>`;
+
+// Sidebar toggle
+function toggleSidebar() {
+  const s = document.getElementById('sidebar');
+  const h = document.getElementById('hamburger');
+  const o = document.getElementById('sidebar-overlay');
+  s.classList.toggle('open');
+  h.classList.toggle('open');
+  o.classList.toggle('show');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('hamburger').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('show');
 }
 
 function showToast(msg, type='info', duration=3500) {
-  const wrap = document.getElementById('toast-wrap');
   const t = document.createElement('div');
   t.className = `toast ${type}`;
   t.innerHTML = `<span>${type==='error'?'!':type==='success'?'v':'i'}</span><span>${msg}</span>`;
-  wrap.appendChild(t);
+  document.getElementById('toast-wrap').appendChild(t);
   setTimeout(() => t.remove(), duration);
 }
 
@@ -510,7 +535,6 @@ function switchTab(tab) {
   document.getElementById('panel-csv').style.display = tab==='csv'?'block':'none';
 }
 
-// CSV drag & drop
 const dropArea = document.getElementById('csv-drop-area');
 dropArea.addEventListener('dragover', e => { e.preventDefault(); dropArea.classList.add('dragover'); });
 dropArea.addEventListener('dragleave', () => dropArea.classList.remove('dragover'));
@@ -533,7 +557,7 @@ function handleCSVFile(file) {
       header.forEach((h, i) => row[h] = parseFloat(vals[i]) || 0);
       return row;
     });
-    document.getElementById('csv-filename').textContent = `${file.name} — ${csvRows.length} transaksi terdeteksi`;
+    document.getElementById('csv-filename').textContent = `${file.name} — ${csvRows.length} transaksi`;
     document.getElementById('csv-filename').style.display = 'block';
     document.getElementById('btn-csv-analyze').disabled = csvRows.length === 0;
     document.getElementById('csv-summary').style.display = 'none';
@@ -545,88 +569,53 @@ function handleCSVFile(file) {
 async function processCSV() {
   if (!csvRows.length) return;
   const btn = document.getElementById('btn-csv-analyze');
-  btn.disabled = true;
-  btn.textContent = 'Memproses...';
-
-  const progress = document.getElementById('csv-progress');
-  const bar = document.getElementById('csv-progress-bar');
-  const txt = document.getElementById('csv-progress-text');
-  progress.style.display = 'block';
-
+  btn.disabled = true; btn.textContent = 'Memproses...';
+  document.getElementById('csv-progress').style.display = 'block';
   document.getElementById('loading').style.display = 'block';
   document.getElementById('loading-text').textContent = 'Memproses batch CSV...';
   document.getElementById('empty').style.display = 'none';
   document.getElementById('results').style.display = 'none';
-
-  let done = 0, fraudFound = 0, safeFound = 0;
-
+  let done=0, fraudFound=0, safeFound=0;
   for (const row of csvRows) {
     try {
-      const res = await fetch(API+'/predict/fraud', {
-        method:'POST', headers:{'Content-Type':'application/json'},
-        body:JSON.stringify(row), signal:AbortSignal.timeout(10000)
-      });
+      const res = await fetch(API+'/predict/fraud', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(row),signal:AbortSignal.timeout(10000)});
       const data = await res.json();
       done++;
       const pct = (done/csvRows.length*100).toFixed(0);
-      bar.style.width = pct+'%';
-      txt.textContent = `${done} / ${csvRows.length} transaksi diproses`;
-
+      document.getElementById('csv-progress-bar').style.width = pct+'%';
+      document.getElementById('csv-progress-text').textContent = `${done} / ${csvRows.length} transaksi diproses`;
       if (data.alert) fraudFound++; else safeFound++;
-      const probPct = data.probability * 100;
-      historyData.unshift({
-        amount: row.Amount || 0,
-        prob: probPct,
-        risk: data.risk_level,
-        isFraud: data.alert,
-        time: new Date().toLocaleTimeString('id-ID')
-      });
-      totalCount++; data.alert ? fraudCount++ : safeCount++;
-      document.getElementById('s-total').textContent = totalCount;
-      document.getElementById('s-fraud').textContent = fraudCount;
-      document.getElementById('s-safe').textContent = safeCount;
+      const probPct = data.probability*100;
+      historyData.unshift({amount:row.Amount||0,prob:probPct,risk:data.risk_level,isFraud:data.alert,time:new Date().toLocaleTimeString('id-ID')});
+      totalCount++; data.alert?fraudCount++:safeCount++;
+      document.getElementById('s-total').textContent=totalCount;
+      document.getElementById('s-fraud').textContent=fraudCount;
+      document.getElementById('s-safe').textContent=safeCount;
     } catch { done++; }
   }
-
-  document.getElementById('loading').style.display = 'none';
-  document.getElementById('results').style.display = 'block';
-
-  // Show last result in metrics
-  if (historyData.length) {
-    const last = historyData[0];
-    renderMetrics(last.prob/100, last.risk, last.isFraud, last.amount);
-  }
-
-  // Show summary
-  document.getElementById('csv-res-total').textContent = done;
-  document.getElementById('csv-res-fraud').textContent = fraudFound;
-  document.getElementById('csv-res-safe').textContent = safeFound;
-  document.getElementById('csv-summary').style.display = 'block';
-
-  // Alert if any fraud found
-  if (fraudFound > 0) {
-    document.getElementById('alert-box').style.display = 'flex';
-    document.getElementById('alert-desc').textContent = `${fraudFound} dari ${done} transaksi terdeteksi sebagai fraud. Verifikasi manual segera diperlukan.`;
-  } else {
-    document.getElementById('alert-box').style.display = 'none';
-  }
-
-  updateTable();
-  updateChart();
+  document.getElementById('loading').style.display='none';
+  document.getElementById('results').style.display='block';
+  if (historyData.length) { const l=historyData[0]; renderMetrics(l.prob/100,l.risk,l.isFraud,l.amount); }
+  document.getElementById('csv-res-total').textContent=done;
+  document.getElementById('csv-res-fraud').textContent=fraudFound;
+  document.getElementById('csv-res-safe').textContent=safeFound;
+  document.getElementById('csv-summary').style.display='block';
+  document.getElementById('alert-box').style.display=fraudFound>0?'flex':'none';
+  document.getElementById('alert-desc').textContent=fraudFound>0?`${fraudFound} dari ${done} transaksi terdeteksi sebagai fraud.`:'Semua transaksi aman.';
+  updateTable(); updateChart();
   showToast(`Selesai! ${fraudFound} fraud dari ${done} transaksi`, fraudFound>0?'error':'success', 5000);
-
-  btn.disabled = false;
-  btn.textContent = 'Analisis Semua Transaksi';
+  btn.disabled=false; btn.textContent='Analisis Semua Transaksi';
 }
 
 function navTo(page, el) {
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   el.classList.add('active');
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+page).classList.add('active');
   if (page==='analytics') updateAnalyticsPage();
   if (page==='history') renderHistoryPage();
   if (page==='reports') updateReportsPage();
+  closeSidebar();
 }
 
 function loadSample(type) {
@@ -637,7 +626,7 @@ function loadSample(type) {
   document.getElementById('inp-time').value=d.t;
   document.getElementById('inp-amount').value=d.a;
   d.v.forEach((val,i)=>document.getElementById(`inp-v${i+1}`).value=val);
-  showToast(type==='normal'?'Sample transaksi normal dimuat':'Sample transaksi mencurigakan dimuat',type==='normal'?'success':'error');
+  showToast(type==='normal'?'Sample normal dimuat':'Sample fraud dimuat',type==='normal'?'success':'error');
 }
 
 async function checkAPI() {
@@ -684,21 +673,18 @@ async function predict() {
     document.getElementById('loading').style.display='none';
     document.getElementById('empty').style.display='block';
     showToast('Tidak dapat terhubung ke API.','error',5000);
-  } finally {
-    btn.disabled=false; btn.textContent='Analisis Transaksi';
-  }
+  } finally { btn.disabled=false; btn.textContent='Analisis Transaksi'; }
 }
 
 function renderResult(data, amount) {
-  const risk=data.risk_level, probPct=data.probability*100, isFraud=data.alert;
-  renderMetrics(data.probability, risk, isFraud, amount);
-  document.getElementById('alert-box').style.display=isFraud?'flex':'none';
+  renderMetrics(data.probability,data.risk_level,data.alert,amount);
+  document.getElementById('alert-box').style.display=data.alert?'flex':'none';
   document.getElementById('alert-desc').textContent='Transaksi ini menunjukkan pola mencurigakan. Verifikasi manual segera diperlukan.';
-  totalCount++; isFraud?fraudCount++:safeCount++;
+  totalCount++; data.alert?fraudCount++:safeCount++;
   document.getElementById('s-total').textContent=totalCount;
   document.getElementById('s-fraud').textContent=fraudCount;
   document.getElementById('s-safe').textContent=safeCount;
-  historyData.unshift({amount,prob:probPct,risk,isFraud,time:new Date().toLocaleTimeString('id-ID')});
+  historyData.unshift({amount,prob:data.probability*100,risk:data.risk_level,isFraud:data.alert,time:new Date().toLocaleTimeString('id-ID')});
   updateTable(); updateChart();
 }
 
@@ -746,7 +732,7 @@ function updateChart() {
   const ptColors=[...historyData].reverse().map(h=>h.risk==='HIGH'?'#ef4444':h.risk==='MEDIUM'?'#f59e0b':'#10b981');
   document.getElementById('chart-count').textContent=historyData.length+' transaksi';
   if(chart) chart.destroy();
-  chart=new Chart(document.getElementById('historyChart'),{type:'line',data:{labels,datasets:[{label:'Probabilitas Fraud (%)',data:probs,borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,0.06)',tension:0.4,fill:true,pointBackgroundColor:ptColors,pointBorderColor:'transparent',pointRadius:5,pointHoverRadius:7,borderWidth:2}]},options:{responsive:true,plugins:{legend:{labels:{color:'#475569',font:{size:11,family:'Inter'}}}},scales:{x:{ticks:{color:'#475569',font:{size:10}},grid:{color:'rgba(255,255,255,0.03)'},border:{color:'rgba(255,255,255,0.05)'}},y:{ticks:{color:'#475569',font:{size:10}},grid:{color:'rgba(255,255,255,0.03)'},border:{color:'rgba(255,255,255,0.05)'},min:0,max:100}}}});
+  chart=new Chart(document.getElementById('historyChart'),{type:'line',data:{labels,datasets:[{label:'Probabilitas Fraud (%)',data:probs,borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,0.06)',tension:0.4,fill:true,pointBackgroundColor:ptColors,pointBorderColor:'transparent',pointRadius:5,pointHoverRadius:7,borderWidth:2}]},options:{responsive:true,plugins:{legend:{labels:{color:'#475569',font:{size:11}}}},scales:{x:{ticks:{color:'#475569',font:{size:10}},grid:{color:'rgba(255,255,255,0.03)'},border:{color:'rgba(255,255,255,0.05)'}},y:{ticks:{color:'#475569',font:{size:10}},grid:{color:'rgba(255,255,255,0.03)'},border:{color:'rgba(255,255,255,0.05)'},min:0,max:100}}}});
 }
 
 function updateAnalyticsPage() {
@@ -763,7 +749,7 @@ function updateAnalyticsPage() {
   const avgMed=med?historyData.filter(h=>h.risk==='MEDIUM').reduce((s,h)=>s+h.prob,0)/med:0;
   const avgHigh=high?historyData.filter(h=>h.risk==='HIGH').reduce((s,h)=>s+h.prob,0)/high:0;
   if(avgChart) avgChart.destroy();
-  avgChart=new Chart(document.getElementById('avgChart'),{type:'bar',data:{labels:['Rendah','Sedang','Tinggi'],datasets:[{label:'Avg Probabilitas (%)',data:[avgLow.toFixed(2),avgMed.toFixed(2),avgHigh.toFixed(2)],backgroundColor:['rgba(16,185,129,0.3)','rgba(245,158,11,0.3)','rgba(239,68,68,0.3)'],borderColor:['#10b981','#f59e0b','#ef4444'],borderWidth:1,borderRadius:6}]},options:{responsive:true,plugins:{legend:{labels:{color:'#94a3b8',font:{size:11}}}},scales:{x:{ticks:{color:'#475569'},grid:{color:'rgba(255,255,255,0.03)'},border:{color:'rgba(255,255,255,0.05)'}},y:{ticks:{color:'#475569'},grid:{color:'rgba(255,255,255,0.03)'},border:{color:'rgba(255,255,255,0.05)'},min:0,max:100}}}});
+  avgChart=new Chart(document.getElementById('avgChart'),{type:'bar',data:{labels:['Rendah','Sedang','Tinggi'],datasets:[{label:'Avg Prob (%)',data:[avgLow.toFixed(2),avgMed.toFixed(2),avgHigh.toFixed(2)],backgroundColor:['rgba(16,185,129,0.3)','rgba(245,158,11,0.3)','rgba(239,68,68,0.3)'],borderColor:['#10b981','#f59e0b','#ef4444'],borderWidth:1,borderRadius:6}]},options:{responsive:true,plugins:{legend:{labels:{color:'#94a3b8',font:{size:11}}}},scales:{x:{ticks:{color:'#475569'},grid:{color:'rgba(255,255,255,0.03)'},border:{color:'rgba(255,255,255,0.05)'}},y:{ticks:{color:'#475569'},grid:{color:'rgba(255,255,255,0.03)'},border:{color:'rgba(255,255,255,0.05)'},min:0,max:100}}}});
 }
 
 function renderHistoryPage() {
@@ -799,20 +785,18 @@ function updateReportsPage() {
 function printReport(){updateReportsPage();window.print();}
 
 function exportCSV() {
-  if(!historyData.length){showToast('Tidak ada data untuk diekspor','info');return;}
+  if(!historyData.length){showToast('Tidak ada data','info');return;}
   const header=['#','Jumlah (Rp)','Probabilitas (%)','Risiko','Keputusan','Waktu'];
   const rows=historyData.map((h,i)=>[historyData.length-i,Math.round(h.amount),h.prob.toFixed(2),h.risk,h.isFraud?'FRAUD':'AMAN',h.time]);
   const csv=[header,...rows].map(r=>r.join(',')).join('\n');
   const blob=new Blob([csv],{type:'text/csv'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
-  a.href=url;a.download=`fraudshield_${Date.now()}.csv`;a.click();URL.revokeObjectURL(url);
+  a.href=url; a.download=`fraudshield_${Date.now()}.csv`; a.click(); URL.revokeObjectURL(url);
   showToast('CSV berhasil diekspor!','success');
 }
 
-checkAPI();
-loadStats();
-setInterval(checkAPI,10000);
+checkAPI(); loadStats(); setInterval(checkAPI,10000);
 </script>
 </body>
 </html>
