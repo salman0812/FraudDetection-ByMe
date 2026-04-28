@@ -227,11 +227,7 @@ tbody tr:hover td{background:rgba(255,255,255,0.02);color:var(--text);}
     </div>
     <div class="model-bar">
       <div class="model-stat"><div class="model-stat-icon blue">XG</div><div class="model-stat-info"><div class="model-stat-val" style="color:var(--blue)">XGBoost</div><div class="model-stat-lbl">Algorithm</div></div></div>
-<div id="ai-box" style="display:none;background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.2);border-radius:12px;padding:14px 18px;margin-bottom:14px;">
-<div style="font-size:11px;color:#a78bfa;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;font-weight:600;">✨ AI Explanation</div>
-<div id="ai-text" style="font-size:13px;color:#c4b5fd;line-height:1.7;">-</div>
-</div>
-<button id="btn-explain" onclick="explainAI()" style="display:none;margin-bottom:14px;padding:10px 18px;border-radius:10px;border:1px solid rgba(139,92,246,0.3);background:rgba(139,92,246,0.1);color:#a78bfa;font-size:13px;font-weight:600;cursor:pointer;width:100%;">✨ Jelaskan dengan AI</button>
+
       <div class="model-stat"><div class="model-stat-icon green">AU</div><div class="model-stat-info"><div class="model-stat-val" style="color:var(--green)" id="ms-auc">97.60%</div><div class="model-stat-lbl">AUC-ROC</div></div></div>
       <div class="model-stat"><div class="model-stat-icon purple">PR</div><div class="model-stat-info"><div class="model-stat-val" style="color:var(--purple)" id="ms-prec">88.0%</div><div class="model-stat-lbl">Precision</div></div></div>
       <div class="model-stat"><div class="model-stat-icon yellow">RC</div><div class="model-stat-info"><div class="model-stat-val" style="color:var(--yellow)" id="ms-recall">84.0%</div><div class="model-stat-lbl">Recall</div></div></div>
@@ -280,6 +276,32 @@ tbody tr:hover td{background:rgba(255,255,255,0.02);color:var(--text);}
         </div>
         <div id="results" style="display:none;">
           <div id="alert-box" class="alert-fraud" style="display:none;"><div style="font-size:16px;flex-shrink:0;">!</div><div><div class="alert-title">Pola Fraud Terdeteksi</div><div class="alert-desc">Transaksi ini menunjukkan pola mencurigakan. Verifikasi manual segera diperlukan.</div></div></div>
+<button id="btn-explain" onclick="explainAI()" style="display:none;margin-bottom:14px;padding:11px 18px;border-radius:10px;border:1px solid rgba(139,92,246,0.3);background:rgba(139,92,246,0.08);color:#a78bfa;font-size:13px;font-weight:600;cursor:pointer;width:100%;letter-spacing:0.3px;transition:all 0.2s;">Analisis AI — Jelaskan Hasil Ini</button>
+<div id="ai-panel" style="display:none;margin-bottom:14px;">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+    <div style="background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.15);border-radius:12px;padding:16px;">
+      <div style="font-size:10px;color:#a78bfa;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:10px;font-weight:600;">AI Explanation</div>
+      <div id="ai-text" style="font-size:12px;color:#c4b5fd;line-height:1.8;">-</div>
+      <div id="ai-rec" style="margin-top:10px;padding:8px 12px;background:rgba(139,92,246,0.08);border-radius:8px;font-size:11px;color:#a78bfa;border-left:2px solid #8b5cf6;display:none;"></div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;">
+      <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:10px;font-weight:600;">Feature Analysis</div>
+      <canvas id="chart-radar" height="180"></canvas>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;">
+      <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:10px;font-weight:600;">Top Risk Factors</div>
+      <canvas id="chart-bar" height="160"></canvas>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;">
+      <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:10px;font-weight:600;">Risk Distribution</div>
+      <canvas id="chart-doughnut" height="160"></canvas>
+    </div>
+  </div>
+</div>
+<button id="btn-explain" onclick="explainAI()" style="display:none;margin-bottom:14px;padding:11px 18px;border-radius:10px;border:1px solid rgba(139,92,246,0.3);background:rgba(139,92,246,0.08);color:#a78bfa;font-size:13px;font-weight:600;cursor:pointer;width:100%;letter-spacing:0.3px;transition:all 0.2s;">Analisis AI — Jelaskan Hasil Ini</button>
+
           <div class="metrics-grid">
             <div class="metric blue" id="m-risk"><div class="metric-label">Tingkat Risiko</div><div class="metric-value" id="res-risk" style="color:var(--blue)">-</div><div class="metric-sub" id="res-risk-sub">-</div></div>
             <div class="metric blue" id="m-prob">
@@ -393,22 +415,26 @@ function handleCSV(event){const file=event.target.files[0];if(!file)return;const
 function handleDrop(event){event.preventDefault();document.getElementById('upload-area').classList.remove('dragover');const file=event.dataTransfer.files[0];if(!file||!file.name.endsWith('.csv')){showToast('Hanya file CSV yang diterima','error');return;}const reader=new FileReader();reader.onload=function(e){parseCSV(e.target.result,file.name);};reader.readAsText(file);}
 function parseCSV(text,filename){const lines=text.trim().split('\n');const headers=lines[0].split(',').map(h=>h.trim());csvData=[];for(let i=1;i<lines.length;i++){const vals=lines[i].split(',');const row={};headers.forEach((h,j)=>row[h]=parseFloat(vals[j])||0);csvData.push(row);}document.getElementById('csv-info').textContent=`${filename} — ${csvData.length} transaksi siap dianalisis`;document.getElementById('csv-preview').style.display='block';showToast(`${csvData.length} transaksi berhasil dimuat`,'success');}
 
-async function predictBatch(){if(!csvData.length){showToast('Upload CSV terlebih dahulu','error');return;}const btn=document.getElementById('btn-batch');btn.disabled=true;btn.textContent='Menganalisis...';document.getElementById('loading').style.display='block';document.getElementById('loading-text').textContent=`Menganalisis ${csvData.length} transaksi...`;document.getElementById('empty').style.display='none';document.getElementById('results').style.display='none';let done=0;for(const row of csvData){try{const payload={Time:row['Time']||0,Amount:row['Amount']||row['TransactionAmt']||0};for(let i=1;i<=28;i++)payload['V'+i]=row['V'+i]||0;const res=await fetch(API+'/predict/fraud',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),signal:AbortSignal.timeout(10000)});const data=await res.json();renderResult(data,payload.Amount);done++;}catch{showToast('Gagal analisis satu baris','error');}}document.getElementById('loading').style.display='none';document.getElementById('results').style.display='block';showToast(`Selesai: ${done}/${csvData.length} transaksi dianalisis`,'success');btn.disabled=false;btn.textContent='Analisis Semua';}
+async function predictBatch(){if(!csvData.length){showToast('Upload CSV terlebih dahulu','error');return;}const btn=document.getElementById('btn-batch');btn.disabled=true;btn.textContent='Menganalisis...';document.getElementById('loading').style.display='block';document.getElementById('loading-text').textContent=`Menganalisis ${csvData.length} transaksi...`;document.getElementById('empty').style.display='none';document.getElementById('results').style.display='none';let done=0;for(const row of csvData){try{const payload={Time:row['Time']||0,Amount:row['Amount']||row['TransactionAmt']||0};for(let i=1;i<=28;i++)payload['V'+i]=row['V'+i]||0;const res=await fetch(API+'/predict/fraud',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),signal:AbortSignal.timeout(10000)});const data=await res.json();lastPayload=payload;renderResult(data,payload.Amount);done++;}catch{showToast('Gagal analisis satu baris','error');}}document.getElementById('loading').style.display='none';document.getElementById('results').style.display='block';showToast(`Selesai: ${done}/${csvData.length} transaksi dianalisis`,'success');document.getElementById('btn-explain').style.display='block';document.getElementById('ai-panel').style.display='none';btn.disabled=false;btn.textContent='Analisis Semua';}
 
 async function checkAPI(){try{await fetch(API+'/',{signal:AbortSignal.timeout(3000)});document.getElementById('api-pill').className='api-pill online';document.getElementById('api-dot').className='dot online';document.getElementById('api-text').textContent='API Online';}catch{document.getElementById('api-pill').className='api-pill offline';document.getElementById('api-dot').className='dot offline';document.getElementById('api-text').textContent='API Offline';}}
 async function loadStats(){try{const r=await fetch(API+'/stats');const d=await r.json();document.getElementById('ms-auc').textContent=(d.model.auc_roc*100).toFixed(2)+'%';document.getElementById('ms-prec').textContent=(d.model.precision*100).toFixed(1)+'%';document.getElementById('ms-recall').textContent=(d.model.recall*100).toFixed(1)+'%';document.getElementById('ms-f1').textContent=(d.model.f1_score*100).toFixed(1)+'%';}catch{}}
-async function predict(){const btn=document.getElementById('btn-analyze');const payload={Time:parseFloat(document.getElementById('inp-time').value)||0,Amount:parseFloat(document.getElementById('inp-amount').value)||0};for(let i=1;i<=28;i++)payload['V'+i]=parseFloat(document.getElementById(`inp-v${i}`).value)||0;btn.disabled=true;btn.textContent='Menganalisis...';document.getElementById('loading').style.display='block';document.getElementById('empty').style.display='none';document.getElementById('results').style.display='none';try{const res=await fetch(API+'/predict/fraud',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),signal:AbortSignal.timeout(10000)});const data=await res.json();document.getElementById('loading').style.display='none';document.getElementById('results').style.display='block';lastPayload=payload;document.getElementById('btn-explain').style.display='block';document.getElementById('ai-box').style.display='none';renderResult(data,payload.Amount);showToast(data.alert?'Pola fraud terdeteksi!':'Transaksi tampak aman',data.alert?'error':'success');}catch{document.getElementById('loading').style.display='none';document.getElementById('empty').style.display='block';showToast('Tidak dapat terhubung ke API.','error',5000);}finally{btn.disabled=false;btn.textContent='Analisis Transaksi';}}
+async function predict(){const btn=document.getElementById('btn-analyze');const payload={Time:parseFloat(document.getElementById('inp-time').value)||0,Amount:parseFloat(document.getElementById('inp-amount').value)||0};for(let i=1;i<=28;i++)payload['V'+i]=parseFloat(document.getElementById(`inp-v${i}`).value)||0;btn.disabled=true;btn.textContent='Menganalisis...';document.getElementById('loading').style.display='block';document.getElementById('empty').style.display='none';document.getElementById('results').style.display='none';try{const res=await fetch(API+'/predict/fraud',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),signal:AbortSignal.timeout(10000)});const data=await res.json();document.getElementById('loading').style.display='none';document.getElementById('results').style.display='block';lastPayload=payload;document.getElementById('btn-explain').style.display='block';document.getElementById('ai-panel').style.display='none';renderResult(data,payload.Amount);showToast(data.alert?'Pola fraud terdeteksi!':'Transaksi tampak aman',data.alert?'error':'success');}catch{document.getElementById('loading').style.display='none';document.getElementById('empty').style.display='block';showToast('Tidak dapat terhubung ke API.','error',5000);}finally{btn.disabled=false;btn.textContent='Analisis Transaksi';}}
 
 let lastPayload={};
 const WRAPPER='https://wrapperme.up.railway.app/v1';
 const WKEY='fshield-y8Hn7pDZLK93tTwhKZpQdRXfbgmeFUqo';
 
+let radarChart=null,barChart=null,doughnutChart=null;
 async function explainAI(){
   const btn=document.getElementById('btn-explain');
   const aiText=document.getElementById('ai-text');
-  const aiBox=document.getElementById('ai-box');
-  btn.disabled=true;btn.textContent='⏳ Memuat penjelasan...';
-  aiBox.style.display='block';aiText.textContent='Sedang menganalisis dengan AI...';
+  const aiRec=document.getElementById('ai-rec');
+  const aiPanel=document.getElementById('ai-panel');
+  btn.disabled=true;btn.textContent='Menganalisis...';
+  aiPanel.style.display='block';
+  aiText.textContent='Menghubungi AI, mohon tunggu...';
+  aiRec.style.display='none';
   try{
     const res=await fetch(WRAPPER+'/analyze',{
       method:'POST',
@@ -418,11 +444,102 @@ async function explainAI(){
     });
     const data=await res.json();
     aiText.textContent=data.ai_explanation||'Penjelasan tidak tersedia.';
+    if(data.recommendation){aiRec.textContent='Rekomendasi: '+data.recommendation;aiRec.style.display='block';}
+    renderCharts(lastPayload,data.result);
   }catch(e){
     aiText.textContent='Gagal mendapatkan penjelasan AI.';
   }finally{
-    btn.disabled=false;btn.textContent='✨ Jelaskan dengan AI';
+    btn.disabled=false;btn.textContent='Analisis AI — Jelaskan Hasil Ini';
   }
+}
+
+function renderCharts(payload,result){
+  const risk=result?result.risk_level:'LOW';
+  const prob=result?result.probability:0;
+  const color=risk==='HIGH'?'rgba(239,68,68,':'risk'==='MEDIUM'?'rgba(245,158,11,':'rgba(16,185,129,';
+  const rc=risk==='HIGH'?'#ef4444':risk==='MEDIUM'?'#f59e0b':'#10b981';
+
+  const features=['V1','V2','V3','V4','V5','V6','V7','V8'];
+  const vals=features.map(f=>Math.abs(payload[f]||0));
+
+  if(radarChart)radarChart.destroy();
+  const ctxR=document.getElementById('chart-radar').getContext('2d');
+  radarChart=new Chart(ctxR,{
+    type:'radar',
+    data:{
+      labels:features,
+      datasets:[{
+        label:'Feature Values',
+        data:vals,
+        backgroundColor:'rgba(139,92,246,0.15)',
+        borderColor:'#8b5cf6',
+        borderWidth:2,
+        pointBackgroundColor:'#8b5cf6',
+        pointRadius:3
+      }]
+    },
+    options:{
+      responsive:true,
+      plugins:{legend:{display:false}},
+      scales:{r:{
+        angleLines:{color:'rgba(255,255,255,0.05)'},
+        grid:{color:'rgba(255,255,255,0.05)'},
+        pointLabels:{color:'#94a3b8',font:{size:10}},
+        ticks:{display:false}
+      }}
+    }
+  });
+
+  const topF=Object.entries(payload)
+    .filter(([k])=>k.startsWith('V'))
+    .map(([k,v])=>({k,v:Math.abs(v||0)}))
+    .sort((a,b)=>b.v-a.v).slice(0,6);
+
+  if(barChart)barChart.destroy();
+  const ctxB=document.getElementById('chart-bar').getContext('2d');
+  barChart=new Chart(ctxB,{
+    type:'bar',
+    data:{
+      labels:topF.map(f=>f.k),
+      datasets:[{
+        data:topF.map(f=>f.v),
+        backgroundColor:topF.map((_,i)=>`rgba(139,92,246,${0.9-i*0.1})`),
+        borderRadius:6,
+        borderSkipped:false
+      }]
+    },
+    options:{
+      responsive:true,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{grid:{display:false},ticks:{color:'#94a3b8',font:{size:10}}},
+        y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#94a3b8',font:{size:10}}}
+      }
+    }
+  });
+
+  if(doughnutChart)doughnutChart.destroy();
+  const ctxD=document.getElementById('chart-doughnut').getContext('2d');
+  doughnutChart=new Chart(ctxD,{
+    type:'doughnut',
+    data:{
+      labels:['Fraud Risk','Safe'],
+      datasets:[{
+        data:[prob,100-prob],
+        backgroundColor:[rc,'rgba(255,255,255,0.05)'],
+        borderWidth:0,
+        hoverOffset:4
+      }]
+    },
+    options:{
+      responsive:true,
+      cutout:'72%',
+      plugins:{
+        legend:{labels:{color:'#94a3b8',font:{size:10},padding:12}},
+        tooltip:{callbacks:{label:ctx=>ctx.label+': '+ctx.parsed.toFixed(1)+'%'}}
+      }
+    }
+  });
 }
 
 function renderResult(data,amount){const risk=data.risk_level;const probPct=data.probability*100;const isFraud=data.alert;const colors={LOW:'var(--green)',MEDIUM:'var(--yellow)',HIGH:'var(--red)'};const mc={LOW:'active-low',MEDIUM:'active-med',HIGH:'active-high'};const cls={LOW:'green',MEDIUM:'yellow',HIGH:'red'};const color=colors[risk];document.getElementById('m-risk').className='metric '+cls[risk]+' '+mc[risk];document.getElementById('res-risk').textContent=risk==='LOW'?'RENDAH':risk==='MEDIUM'?'SEDANG':'TINGGI';document.getElementById('res-risk').style.color=color;document.getElementById('res-risk-sub').textContent=risk==='LOW'?'Transaksi tampak normal':risk==='MEDIUM'?'Tingkat kecurigaan sedang':'Kecurigaan fraud tinggi';const circumference=175.9;const offset=circumference-(probPct/100)*circumference;document.getElementById('ring-fill').style.strokeDashoffset=offset;document.getElementById('ring-fill').style.stroke=color;document.getElementById('ring-pct').textContent=probPct.toFixed(1)+'%';document.getElementById('ring-pct').style.color=color;document.getElementById('prob-desc').textContent=probPct<40?'Sinyal fraud rendah':probPct<70?'Sinyal sedang':'Sinyal fraud kuat';document.getElementById('m-prob').className='metric '+cls[risk]+' '+mc[risk];document.getElementById('m-status').className='metric '+(isFraud?'red active-high':'green active-low');document.getElementById('res-status').textContent=isFraud?'! FRAUD':'v AMAN';document.getElementById('res-status').style.color=isFraud?'var(--red)':'var(--green)';document.getElementById('res-time').textContent=new Date().toLocaleTimeString('id-ID');document.getElementById('alert-box').style.display=isFraud?'flex':'none';totalCount++;isFraud?fraudCount++:safeCount++;document.getElementById('s-total').textContent=totalCount;document.getElementById('s-fraud').textContent=fraudCount;document.getElementById('s-safe').textContent=safeCount;historyData.unshift({amount,prob:probPct,risk,isFraud,time:new Date().toLocaleTimeString('id-ID')});updateTable();updateChart();}
