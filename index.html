@@ -227,6 +227,11 @@ tbody tr:hover td{background:rgba(255,255,255,0.02);color:var(--text);}
     </div>
     <div class="model-bar">
       <div class="model-stat"><div class="model-stat-icon blue">XG</div><div class="model-stat-info"><div class="model-stat-val" style="color:var(--blue)">XGBoost</div><div class="model-stat-lbl">Algorithm</div></div></div>
+<div id="ai-box" style="display:none;background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.2);border-radius:12px;padding:14px 18px;margin-bottom:14px;">
+<div style="font-size:11px;color:#a78bfa;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;font-weight:600;">✨ AI Explanation</div>
+<div id="ai-text" style="font-size:13px;color:#c4b5fd;line-height:1.7;">-</div>
+</div>
+<button id="btn-explain" onclick="explainAI()" style="display:none;margin-bottom:14px;padding:10px 18px;border-radius:10px;border:1px solid rgba(139,92,246,0.3);background:rgba(139,92,246,0.1);color:#a78bfa;font-size:13px;font-weight:600;cursor:pointer;width:100%;">✨ Jelaskan dengan AI</button>
       <div class="model-stat"><div class="model-stat-icon green">AU</div><div class="model-stat-info"><div class="model-stat-val" style="color:var(--green)" id="ms-auc">97.60%</div><div class="model-stat-lbl">AUC-ROC</div></div></div>
       <div class="model-stat"><div class="model-stat-icon purple">PR</div><div class="model-stat-info"><div class="model-stat-val" style="color:var(--purple)" id="ms-prec">88.0%</div><div class="model-stat-lbl">Precision</div></div></div>
       <div class="model-stat"><div class="model-stat-icon yellow">RC</div><div class="model-stat-info"><div class="model-stat-val" style="color:var(--yellow)" id="ms-recall">84.0%</div><div class="model-stat-lbl">Recall</div></div></div>
@@ -392,7 +397,33 @@ async function predictBatch(){if(!csvData.length){showToast('Upload CSV terlebih
 
 async function checkAPI(){try{await fetch(API+'/',{signal:AbortSignal.timeout(3000)});document.getElementById('api-pill').className='api-pill online';document.getElementById('api-dot').className='dot online';document.getElementById('api-text').textContent='API Online';}catch{document.getElementById('api-pill').className='api-pill offline';document.getElementById('api-dot').className='dot offline';document.getElementById('api-text').textContent='API Offline';}}
 async function loadStats(){try{const r=await fetch(API+'/stats');const d=await r.json();document.getElementById('ms-auc').textContent=(d.model.auc_roc*100).toFixed(2)+'%';document.getElementById('ms-prec').textContent=(d.model.precision*100).toFixed(1)+'%';document.getElementById('ms-recall').textContent=(d.model.recall*100).toFixed(1)+'%';document.getElementById('ms-f1').textContent=(d.model.f1_score*100).toFixed(1)+'%';}catch{}}
-async function predict(){const btn=document.getElementById('btn-analyze');const payload={Time:parseFloat(document.getElementById('inp-time').value)||0,Amount:parseFloat(document.getElementById('inp-amount').value)||0};for(let i=1;i<=28;i++)payload['V'+i]=parseFloat(document.getElementById(`inp-v${i}`).value)||0;btn.disabled=true;btn.textContent='Menganalisis...';document.getElementById('loading').style.display='block';document.getElementById('empty').style.display='none';document.getElementById('results').style.display='none';try{const res=await fetch(API+'/predict/fraud',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),signal:AbortSignal.timeout(10000)});const data=await res.json();document.getElementById('loading').style.display='none';document.getElementById('results').style.display='block';renderResult(data,payload.Amount);showToast(data.alert?'Pola fraud terdeteksi!':'Transaksi tampak aman',data.alert?'error':'success');}catch{document.getElementById('loading').style.display='none';document.getElementById('empty').style.display='block';showToast('Tidak dapat terhubung ke API.','error',5000);}finally{btn.disabled=false;btn.textContent='Analisis Transaksi';}}
+async function predict(){const btn=document.getElementById('btn-analyze');const payload={Time:parseFloat(document.getElementById('inp-time').value)||0,Amount:parseFloat(document.getElementById('inp-amount').value)||0};for(let i=1;i<=28;i++)payload['V'+i]=parseFloat(document.getElementById(`inp-v${i}`).value)||0;btn.disabled=true;btn.textContent='Menganalisis...';document.getElementById('loading').style.display='block';document.getElementById('empty').style.display='none';document.getElementById('results').style.display='none';try{const res=await fetch(API+'/predict/fraud',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),signal:AbortSignal.timeout(10000)});const data=await res.json();document.getElementById('loading').style.display='none';document.getElementById('results').style.display='block';lastPayload=payload;document.getElementById('btn-explain').style.display='block';document.getElementById('ai-box').style.display='none';renderResult(data,payload.Amount);showToast(data.alert?'Pola fraud terdeteksi!':'Transaksi tampak aman',data.alert?'error':'success');}catch{document.getElementById('loading').style.display='none';document.getElementById('empty').style.display='block';showToast('Tidak dapat terhubung ke API.','error',5000);}finally{btn.disabled=false;btn.textContent='Analisis Transaksi';}}
+
+let lastPayload={};
+const WRAPPER='https://wrapperme.up.railway.app/v1';
+const WKEY='fshield-y8Hn7pDZLK93tTwhKZpQdRXfbgmeFUqo';
+
+async function explainAI(){
+  const btn=document.getElementById('btn-explain');
+  const aiText=document.getElementById('ai-text');
+  const aiBox=document.getElementById('ai-box');
+  btn.disabled=true;btn.textContent='⏳ Memuat penjelasan...';
+  aiBox.style.display='block';aiText.textContent='Sedang menganalisis dengan AI...';
+  try{
+    const res=await fetch(WRAPPER+'/analyze',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','X-API-Key':WKEY},
+      body:JSON.stringify(lastPayload),
+      signal:AbortSignal.timeout(20000)
+    });
+    const data=await res.json();
+    aiText.textContent=data.ai_explanation||'Penjelasan tidak tersedia.';
+  }catch(e){
+    aiText.textContent='Gagal mendapatkan penjelasan AI.';
+  }finally{
+    btn.disabled=false;btn.textContent='✨ Jelaskan dengan AI';
+  }
+}
 
 function renderResult(data,amount){const risk=data.risk_level;const probPct=data.probability*100;const isFraud=data.alert;const colors={LOW:'var(--green)',MEDIUM:'var(--yellow)',HIGH:'var(--red)'};const mc={LOW:'active-low',MEDIUM:'active-med',HIGH:'active-high'};const cls={LOW:'green',MEDIUM:'yellow',HIGH:'red'};const color=colors[risk];document.getElementById('m-risk').className='metric '+cls[risk]+' '+mc[risk];document.getElementById('res-risk').textContent=risk==='LOW'?'RENDAH':risk==='MEDIUM'?'SEDANG':'TINGGI';document.getElementById('res-risk').style.color=color;document.getElementById('res-risk-sub').textContent=risk==='LOW'?'Transaksi tampak normal':risk==='MEDIUM'?'Tingkat kecurigaan sedang':'Kecurigaan fraud tinggi';const circumference=175.9;const offset=circumference-(probPct/100)*circumference;document.getElementById('ring-fill').style.strokeDashoffset=offset;document.getElementById('ring-fill').style.stroke=color;document.getElementById('ring-pct').textContent=probPct.toFixed(1)+'%';document.getElementById('ring-pct').style.color=color;document.getElementById('prob-desc').textContent=probPct<40?'Sinyal fraud rendah':probPct<70?'Sinyal sedang':'Sinyal fraud kuat';document.getElementById('m-prob').className='metric '+cls[risk]+' '+mc[risk];document.getElementById('m-status').className='metric '+(isFraud?'red active-high':'green active-low');document.getElementById('res-status').textContent=isFraud?'! FRAUD':'v AMAN';document.getElementById('res-status').style.color=isFraud?'var(--red)':'var(--green)';document.getElementById('res-time').textContent=new Date().toLocaleTimeString('id-ID');document.getElementById('alert-box').style.display=isFraud?'flex':'none';totalCount++;isFraud?fraudCount++:safeCount++;document.getElementById('s-total').textContent=totalCount;document.getElementById('s-fraud').textContent=fraudCount;document.getElementById('s-safe').textContent=safeCount;historyData.unshift({amount,prob:probPct,risk,isFraud,time:new Date().toLocaleTimeString('id-ID')});updateTable();updateChart();}
 function fmtRp(n){return'Rp '+Math.round(n).toLocaleString('id-ID');}
