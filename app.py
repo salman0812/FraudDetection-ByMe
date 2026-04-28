@@ -44,7 +44,7 @@ def predict_fraud():
 def stats():
     return jsonify({
         'model': {
-            'type': 'XGBoost',
+            'type': 'FraudShield-XGB',
             'auc_roc': 0.9760,
             'precision': 0.88,
             'recall': 0.84,
